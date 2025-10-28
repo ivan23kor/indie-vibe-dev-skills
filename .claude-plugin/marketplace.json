@@ -14,7 +14,7 @@
       "name": "ios-notes-screenshot-generator",
       "description": "Transforms arbitrary text input into realistic iOS notes app screenshots",
       "version": "1.0.0",
-      "source": "skills/ios-notes-screenshot-generator"
+      "source": "./skills/ios-notes-screenshot-generator"
     }
   ],
   "keywords": [
