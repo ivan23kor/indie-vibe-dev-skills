@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Notes App</title>
+    <style>
+        /* iOS Design System CSS Variables */
+        :root {
+            /* Typography */
+            --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            --font-family-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+
+            /* Colors - Light Mode */
+            --background: #FFFFFF;
+            --card-background: #FFFFFF;
+            --text-primary: #000000;
+            --text-secondary: #3C3C43;
+            --text-tertiary: #3C3C4399;
+            --system-blue: #007AFF;
+            --system-gray: #8E8E93;
+            --system-gray-light: #C7C7CC;
+            --system-gray-ultralight: #F2F2F7;
+            --notes-yellow: #FFD60A;
+            --separator: #C6C6C8;
+
+            /* Spacing */
+            --spacing-xs: 4pt;
+            --spacing-sm: 8pt;
+            --spacing-md: 16pt;
+            --spacing-lg: 24pt;
+            --spacing-xl: 32pt;
+
+            /* Dimensions */
+            --screen-width: 390px;
+            --screen-height: 844px;
+            --status-bar-height: 44px;
+            --nav-bar-height: 44px;
+            --nav-bar-height-large: 96px;
+            --home-indicator-height: 34px;
+
+            /* Effects */
+            --shadow: 0 4px 16px rgba(0,0,0,0.1);
+            --blur: blur(20px);
+            --transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--system-gray-ultralight);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+
+        .iphone-screen {
+            width: var(--screen-width);
+            height: var(--screen-height);
+            background-color: var(--background);
+            position: relative;
+            margin: 0 auto;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            height: var(--status-bar-height);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: var(--blur);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--spacing-md);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .status-time {
+            font-size: 17pt;
+            font-weight: 600;
+            font-family: var(--font-family);
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 17pt;
+            font-weight: 600;
+        }
+
+        .battery {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .battery-icon {
+            width: 24px;
+            height: 12px;
+            border: 1px solid var(--text-primary);
+            border-radius: 2px;
+            position: relative;
+            padding: 1px;
+        }
+
+        .battery-icon::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 3px;
+            width: 2px;
+            height: 6px;
+            background: var(--text-primary);
+            border-radius: 0 1px 1px 0;
+        }
+
+        .battery-level {
+            height: 100%;
+            background: var(--text-primary);
+            border-radius: 1px;
+            width: 80%;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            height: var(--nav-bar-height-large);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: var(--blur);
+            position: absolute;
+            top: var(--status-bar-height);
+            left: 0;
+            right: 0;
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding-bottom: var(--spacing-sm);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--spacing-md);
+        }
+
+        .nav-button {
+            background: none;
+            border: none;
+            color: var(--system-blue);
+            font-size: 17pt;
+            font-family: var(--font-family);
+            font-weight: 400;
+            padding: var(--spacing-sm);
+            min-width: 44px;
+            min-height: 44px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-title {
+            font-size: 34pt;
+            font-weight: 400;
+            font-family: var(--font-family-display);
+            color: var(--text-primary);
+        }
+
+        /* Content Area */
+        .content-area {
+            position: absolute;
+            top: calc(var(--status-bar-height) + var(--nav-bar-height-large));
+            left: 0;
+            right: 0;
+            bottom: var(--home-indicator-height);
+            overflow-y: auto;
+            background: var(--background);
+        }
+
+        /* Notes List */
+        .notes-list {
+            padding: var(--spacing-sm) 0;
+        }
+
+        .note-item {
+            background: var(--card-background);
+            padding: var(--spacing-md);
+            border-bottom: 0.5px solid var(--separator);
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .note-item:hover {
+            background: var(--system-gray-ultralight);
+        }
+
+        .note-title {
+            font-size: 17pt;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .note-preview {
+            font-size: 15pt;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .note-date {
+            font-size: 12pt;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        /* Detail View */
+        .note-detail {
+            padding: var(--spacing-md);
+            min-height: 100%;
+        }
+
+        .note-content {
+            font-size: 17pt;
+            line-height: 1.5;
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            position: absolute;
+            bottom: var(--home-indicator-height);
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: var(--blur);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 var(--spacing-md);
+            z-index: 98;
+            border-top: 0.5px solid var(--separator);
+        }
+
+        .toolbar-button {
+            background: none;
+            border: none;
+            color: var(--system-blue);
+            font-size: 24pt;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 8pt;
+            transition: var(--transition);
+        }
+
+        .toolbar-button:hover {
+            background: var(--system-gray-ultralight);
+        }
+
+        /* Home Indicator */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: var(--text-primary);
+            border-radius: 100px;
+            z-index: 101;
+        }
+
+        /* Search Bar */
+        .search-container {
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--system-gray-ultralight);
+            border-bottom: 0.5px solid var(--separator);
+        }
+
+        .search-bar {
+            background: var(--card-background);
+            border: none;
+            border-radius: 10pt;
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 17pt;
+            width: 100%;
+            height: 36px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .search-bar::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60%;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 64pt;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.3;
+        }
+
+        .empty-text {
+            font-size: 17pt;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        /* Responsive for different screen sizes */
+        @media (max-width: 400px) {
+            .iphone-screen {
+                transform: scale(0.9);
+                transform-origin: top center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-screen">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-time">9:41</div>
+            <div class="status-right">
+                <div class="signal">📶</div>
+                <div class="wifi">📶</div>
+                <div class="battery">
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                    </div>
+                    <span>100%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <div class="nav-content">
+                <button class="nav-button">‹ Notes</button>
+                <div class="nav-title">Notes</div>
+                <button class="nav-button">Edit</button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Search">
+            </div>
+
+            <!-- Notes List -->
+            <div class="notes-list" id="notesList">
+                <!-- Sample Note Items -->
+                <div class="note-item">
+                    <div class="note-title">Meeting Notes</div>
+                    <div class="note-preview">Discussed quarterly goals and project timeline...</div>
+                    <div class="note-date">2 hours ago</div>
+                </div>
+
+                <div class="note-item">
+                    <div class="note-title">Shopping List</div>
+                    <div class="note-preview">Milk, eggs, bread, coffee, vegetables...</div>
+                    <div class="note-date">Yesterday</div>
+                </div>
+
+                <div class="note-item">
+                    <div class="note-title">Ideas for App</div>
+                    <div class="note-preview">User authentication, push notifications...</div>
+                    <div class="note-date">3 days ago</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-button">📁</button>
+            <button class="toolbar-button">✏️</button>
+            <button class="toolbar-button">📷</button>
+            <button class="toolbar-button">📋</button>
+            <button class="toolbar-button">🔍</button>
+        </div>
+
+        <!-- Home Indicator -->
+        <div class="home-indicator"></div>
+    </div>
+
+    <script>
+        // Dynamic content insertion and iOS-like interactions
+        class iOSNotesApp {
+            constructor() {
+                this.currentView = 'list';
+                this.notes = [];
+                this.init();
+            }
+
+            init() {
+                this.loadSampleNotes();
+                this.attachEventListeners();
+                this.updateTime();
+            }
+
+            loadSampleNotes() {
+                this.notes = [
+                    {
+                        id: 1,
+                        title: 'Meeting Notes',
+                        content: 'Discussed quarterly goals and project timeline\n\nAction items:\n- Review Q4 metrics\n- Prepare presentation\n- Schedule follow-up meeting',
+                        date: new Date(Date.now() - 2 * 60 * 60 * 1000)
+                    },
+                    {
+                        id: 2,
+                        title: 'Shopping List',
+                        content: 'Milk, eggs, bread, coffee, vegetables, fruits, pasta, tomato sauce',
+                        date: new Date(Date.now() - 24 * 60 * 60 * 1000)
+                    },
+                    {
+                        id: 3,
+                        title: 'Ideas for App',
+                        content: 'User authentication\nPush notifications\nDark mode support\nOffline functionality',
+                        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+                    }
+                ];
+            }
+
+            attachEventListeners() {
+                // Add click handlers to note items
+                document.querySelectorAll('.note-item').forEach(item => {
+                    item.addEventListener('click', () => this.openNote(item));
+                });
+
+                // Search functionality
+                document.querySelector('.search-bar').addEventListener('input', (e) => {
+                    this.searchNotes(e.target.value);
+                });
+
+                // Toolbar buttons
+                document.querySelectorAll('.toolbar-button').forEach(button => {
+                    button.addEventListener('click', () => this.handleToolbarAction(button));
+                });
+            }
+
+            openNote(noteElement) {
+                // Add selection animation
+                noteElement.style.backgroundColor = 'var(--system-gray-ultralight)';
+                setTimeout(() => {
+                    noteElement.style.backgroundColor = '';
+                }, 200);
+            }
+
+            searchNotes(query) {
+                const filteredNotes = this.notes.filter(note =>
+                    note.title.toLowerCase().includes(query.toLowerCase()) ||
+                    note.content.toLowerCase().includes(query.toLowerCase())
+                );
+                this.renderNotes(filteredNotes);
+            }
+
+            handleToolbarAction(button) {
+                // Add haptic feedback simulation
+                button.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    button.style.transform = '';
+                }, 100);
+            }
+
+            updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: false
+                });
+                document.querySelector('.status-time').textContent = timeString;
+
+                // Update every minute
+                setTimeout(() => this.updateTime(), 60000);
+            }
+
+            renderNotes(notes) {
+                const notesList = document.getElementById('notesList');
+                // Implementation for dynamic note rendering
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            new iOSNotesApp();
+        });
+    </script>
+</body>
+</html>

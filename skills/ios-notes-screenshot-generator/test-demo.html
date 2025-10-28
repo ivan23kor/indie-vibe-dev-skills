@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Notes Screenshot Generator - Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1d1d1f;
+            margin-bottom: 30px;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        input, select, textarea {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #0051D5;
+            transform: translateY(-1px);
+        }
+
+        .screenshot-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .screenshot-wrapper {
+            text-align: center;
+        }
+
+        .screenshot-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .iframe-container {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 8px solid #222;
+            background: #222;
+        }
+
+        .preview-iframe {
+            display: block;
+            border: none;
+            width: 390px;
+            height: 844px;
+        }
+
+        .instructions {
+            background: #f0f7ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+
+        .instructions ul {
+            margin-bottom: 0;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>iOS Notes App Screenshot Generator</h1>
+
+        <div class="demo-section">
+            <h2>Interactive Demo</h2>
+
+            <div class="instructions">
+                <h3>How to Use:</h3>
+                <ul>
+                    <li>Enter your text content in the textarea below</li>
+                    <li>Choose between list view (multiple notes) or detail view (single note)</li>
+                    <li>Customize the title and other options</li>
+                    <li>Click "Generate Screenshot" to see the result</li>
+                    <li>The screenshot will appear as a realistic iOS notes app interface</li>
+                </ul>
+            </div>
+
+            <div class="demo-controls">
+                <div class="control-group" style="flex: 1;">
+                    <label for="textInput">Text Content:</label>
+                    <textarea id="textInput" placeholder="Enter your notes text here...">Project Meeting Notes
+
+Attendees:
+- Development Team
+- Product Manager
+- UX Designer
+
+Key Decisions:
+1. Launch new features next month
+2. Improve user onboarding
+3. Add dark mode support
+
+Action Items:
+- Update documentation
+- Prepare demo
+- Schedule user testing</textarea>
+                </div>
+            </div>
+
+            <div class="demo-controls">
+                <div class="control-group">
+                    <label for="noteTitle">Note Title:</label>
+                    <input type="text" id="noteTitle" value="Project Meeting Notes">
+                </div>
+
+                <div class="control-group">
+                    <label for="viewMode">View Mode:</label>
+                    <select id="viewMode">
+                        <option value="detail">Detail View</option>
+                        <option value="list">List View</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="showSearch">Show Search:</label>
+                    <select id="showSearch">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="batteryLevel">Battery Level:</label>
+                    <input type="number" id="batteryLevel" value="85" min="0" max="100">
+                </div>
+
+                <div class="control-group" style="justify-content: flex-end;">
+                    <button onclick="generateScreenshot()">Generate Screenshot</button>
+                </div>
+            </div>
+
+            <div class="screenshot-container">
+                <div class="screenshot-wrapper">
+                    <div class="screenshot-title">Your iOS Notes Screenshot</div>
+                    <div class="iframe-container">
+                        <iframe id="screenshot" class="preview-iframe" srcdoc=""></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Example Screenshots</h2>
+            <p style="margin-bottom: 20px;">Click the buttons below to see pre-configured examples:</p>
+
+            <div class="demo-controls">
+                <button onclick="loadExample('meeting')">Meeting Notes</button>
+                <button onclick="loadExample('shopping')">Shopping List</button>
+                <button onclick="loadExample('ideas')">Creative Ideas</button>
+                <button onclick="loadExample('multiple')">Multiple Notes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Include the screenshot generator
+        class IOSScreenshotGenerator {
+            constructor() {
+                this.screenWidth = 390;
+                this.screenHeight = 844;
+                this.statusBarHeight = 44;
+                this.navBarHeight = 96;
+                this.homeIndicatorHeight = 34;
+            }
+
+            generateScreenshot(text, options = {}) {
+                const config = {
+                    title: options.title || this.extractTitle(text),
+                    viewMode: options.viewMode || 'detail',
+                    showSearch: options.showSearch !== false,
+                    showToolbar: options.showToolbar !== false,
+                    currentTime: options.currentTime || this.getCurrentTime(),
+                    batteryLevel: options.batteryLevel || 85,
+                    ...options
+                };
+
+                return this.buildHTML(text, config);
+            }
+
+            extractTitle(text) {
+                const lines = text.trim().split('\n');
+                const firstLine = lines[0];
+                if (firstLine.length <= 50) {
+                    return firstLine;
+                }
+                return firstLine.substring(0, 30) + '...';
+            }
+
+            getCurrentTime() {
+                const now = new Date();
+                return now.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: false
+                });
+            }
+
+            buildHTML(text, config) {
+                return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${config.title} - iOS Notes</title>
+    <style>
+        ${this.getBaseCSS()}
+    </style>
+</head>
+<body>
+    <div class="iphone-screen">
+        ${this.buildStatusBar(config.currentTime, config.batteryLevel)}
+        ${this.buildNavigationBar(config.title)}
+        ${this.buildContentArea(text, config)}
+        ${config.showToolbar ? this.buildToolbar() : ''}
+        ${this.buildHomeIndicator()}
+    </div>
+    <script>
+        ${this.getInteractionsJS()}
+    <\/script>
+</body>
+</html>`;
+            }
+
+            buildStatusBar(time, batteryLevel) {
+                return `<div class="status-bar">
+                    <div class="status-time">${time}</div>
+                    <div class="status-right">
+                        <div class="signal">📶</div>
+                        <div class="wifi">📶</div>
+                        <div class="battery">
+                            <div class="battery-icon">
+                                <div class="battery-level" style="width: ${batteryLevel}%"></div>
+                            </div>
+                            <span>${batteryLevel}%</span>
+                        </div>
+                    </div>
+                </div>`;
+            }
+
+            buildNavigationBar(title) {
+                return `<div class="nav-bar">
+                    <div class="nav-content">
+                        <button class="nav-button">‹ Notes</button>
+                        <div class="nav-title">${this.escapeHTML(title)}</div>
+                        <button class="nav-button">Done</button>
+                    </div>
+                </div>`;
+            }
+
+            buildContentArea(text, config) {
+                if (config.viewMode === 'list') {
+                    return this.buildListView(text, config);
+                } else {
+                    return this.buildDetailView(text, config);
+                }
+            }
+
+            buildListView(text, config) {
+                const notes = this.parseNotes(text);
+                const searchHTML = config.showSearch ? `<div class="search-container">
+                    <input type="text" class="search-bar" placeholder="Search" value="">
+                </div>` : '';
+
+                return `<div class="content-area">
+                    ${searchHTML}
+                    <div class="notes-list">
+                        ${notes.map(note => this.buildNoteItem(note)).join('')}
+                    </div>
+                </div>`;
+            }
+
+            buildDetailView(text, config) {
+                const formattedText = this.formatNoteContent(text);
+                return `<div class="content-area">
+                    <div class="note-detail">
+                        <div class="note-content">${this.escapeHTML(formattedText)}</div>
+                    </div>
+                </div>`;
+            }
+
+            buildNoteItem(note) {
+                const preview = note.content.length > 100 ?
+                    note.content.substring(0, 100) + '...' : note.content;
+
+                return `<div class="note-item">
+                    <div class="note-title">${this.escapeHTML(note.title)}</div>
+                    <div class="note-preview">${this.escapeHTML(preview)}</div>
+                    <div class="note-date">${note.date}</div>
+                </div>`;
+            }
+
+            parseNotes(text) {
+                const lines = text.trim().split('\n\n');
+                const now = new Date();
+
+                return lines.map((content, index) => {
+                    const title = content.split('\n')[0] || `Note ${index + 1}`;
+                    const noteContent = content.substring(title.length).trim() || content;
+
+                    return {
+                        title: title.length <= 50 ? title : title.substring(0, 50) + '...',
+                        content: noteContent,
+                        date: this.formatDate(new Date(now - index * 24 * 60 * 60 * 1000))
+                    };
+                });
+            }
+
+            formatNoteContent(text) {
+                return text.replace(/\n{3,}/g, '\n\n');
+            }
+
+            formatDate(date) {
+                const now = new Date();
+                const diffTime = Math.abs(now - date);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays === 0) return 'Today';
+                if (diffDays === 1) return 'Yesterday';
+                if (diffDays < 7) return `${diffDays} days ago`;
+
+                return date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+                });
+            }
+
+            buildToolbar() {
+                return `<div class="toolbar">
+                    <button class="toolbar-button">📁</button>
+                    <button class="toolbar-button">📝</button>
+                    <button class="toolbar-button">📷</button>
+                    <button class="toolbar-button">📋</button>
+                    <button class="toolbar-button">🔍</button>
+                </div>`;
+            }
+
+            buildHomeIndicator() {
+                return '<div class="home-indicator"></div>';
+            }
+
+            getBaseCSS() {
+                return `:root {
+                    --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+                    --font-family-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+                    --background: #FFFFFF;
+                    --card-background: #FFFFFF;
+                    --text-primary: #000000;
+                    --text-secondary: #3C3C43;
+                    --text-tertiary: #3C3C4399;
+                    --system-blue: #007AFF;
+                    --system-gray: #8E8E93;
+                    --system-gray-light: #C7C7CC;
+                    --system-gray-ultralight: #F2F2F7;
+                    --separator: #C6C6C8;
+                    --spacing-xs: 4pt;
+                    --spacing-sm: 8pt;
+                    --spacing-md: 16pt;
+                    --spacing-lg: 24pt;
+                    --spacing-xl: 32pt;
+                    --screen-width: 390px;
+                    --screen-height: 844px;
+                    --status-bar-height: 44px;
+                    --nav-bar-height: 44px;
+                    --nav-bar-height-large: 96px;
+                    --home-indicator-height: 34px;
+                    --shadow: 0 4px 16px rgba(0,0,0,0.1);
+                    --blur: blur(20px);
+                    --transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+                }
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: var(--font-family); background-color: var(--system-gray-ultralight); color: var(--text-primary); overflow: hidden; }
+                .iphone-screen { width: var(--screen-width); height: var(--screen-height); background-color: var(--background); position: relative; margin: 0 auto; overflow: hidden; box-shadow: var(--shadow); }
+                .status-bar { height: var(--status-bar-height); background: rgba(255, 255, 255, 0.8); backdrop-filter: var(--blur); display: flex; justify-content: space-between; align-items: center; padding: 0 var(--spacing-md); position: absolute; top: 0; left: 0; right: 0; z-index: 100; }
+                .status-time { font-size: 17pt; font-weight: 600; font-family: var(--font-family); }
+                .status-right { display: flex; align-items: center; gap: var(--spacing-sm); font-size: 17pt; font-weight: 600; }
+                .battery { display: flex; align-items: center; gap: 2px; }
+                .battery-icon { width: 24px; height: 12px; border: 1px solid var(--text-primary); border-radius: 2px; position: relative; padding: 1px; }
+                .battery-icon::after { content: ''; position: absolute; right: -3px; top: 3px; width: 2px; height: 6px; background: var(--text-primary); border-radius: 0 1px 1px 0; }
+                .battery-level { height: 100%; background: var(--text-primary); border-radius: 1px; }
+                .nav-bar { height: var(--nav-bar-height-large); background: rgba(255, 255, 255, 0.8); backdrop-filter: var(--blur); position: absolute; top: var(--status-bar-height); left: 0; right: 0; z-index: 99; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: var(--spacing-sm); }
+                .nav-content { display: flex; justify-content: space-between; align-items: center; padding: 0 var(--spacing-md); }
+                .nav-button { background: none; border: none; color: var(--system-blue); font-size: 17pt; font-family: var(--font-family); font-weight: 400; padding: var(--spacing-sm); min-width: 44px; min-height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+                .nav-title { font-size: 34pt; font-weight: 400; font-family: var(--font-family-display); color: var(--text-primary); }
+                .content-area { position: absolute; top: calc(var(--status-bar-height) + var(--nav-bar-height-large)); left: 0; right: 0; bottom: var(--home-indicator-height); overflow-y: auto; background: var(--background); }
+                .search-container { padding: var(--spacing-sm) var(--spacing-md); background: var(--system-gray-ultralight); border-bottom: 0.5px solid var(--separator); }
+                .search-bar { background: var(--card-background); border: none; border-radius: 10pt; padding: var(--spacing-sm) var(--spacing-md); font-size: 17pt; width: 100%; height: 36px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+                .search-bar::placeholder { color: var(--text-tertiary); }
+                .notes-list { padding: var(--spacing-sm) 0; }
+                .note-item { background: var(--card-background); padding: var(--spacing-md); border-bottom: 0.5px solid var(--separator); min-height: 60px; display: flex; flex-direction: column; justify-content: center; transition: var(--transition); cursor: pointer; }
+                .note-item:hover { background: var(--system-gray-ultralight); }
+                .note-title { font-size: 17pt; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                .note-preview { font-size: 15pt; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+                .note-date { font-size: 12pt; color: var(--text-tertiary); margin-top: 2px; }
+                .note-detail { padding: var(--spacing-md); min-height: 100%; }
+                .note-content { font-size: 17pt; line-height: 1.5; color: var(--text-primary); font-family: var(--font-family); white-space: pre-wrap; word-wrap: break-word; }
+                .toolbar { position: absolute; bottom: var(--home-indicator-height); left: 0; right: 0; height: 44px; background: rgba(255, 255, 255, 0.8); backdrop-filter: var(--blur); display: flex; justify-content: space-around; align-items: center; padding: 0 var(--spacing-md); z-index: 98; border-top: 0.5px solid var(--separator); }
+                .toolbar-button { background: none; border: none; color: var(--system-blue); font-size: 24pt; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 8pt; transition: var(--transition); }
+                .toolbar-button:hover { background: var(--system-gray-ultralight); }
+                .home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; background: var(--text-primary); border-radius: 100px; z-index: 101; }`;
+            }
+
+            getInteractionsJS() {
+                return `document.addEventListener('DOMContentLoaded', function() {
+                    document.querySelectorAll('.note-item, .nav-button, .toolbar-button').forEach(element => {
+                        element.addEventListener('click', function() {
+                            this.style.transform = 'scale(0.98)';
+                            setTimeout(() => { this.style.transform = ''; }, 150);
+                        });
+                    });
+                    function updateTime() {
+                        const now = new Date();
+                        const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false });
+                        const timeElement = document.querySelector('.status-time');
+                        if (timeElement) { timeElement.textContent = timeString; }
+                    }
+                    setInterval(updateTime, 60000);
+                });`;
+            }
+
+            escapeHTML(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // Initialize generator
+        const generator = new IOSScreenshotGenerator();
+
+        // Generate screenshot from form
+        function generateScreenshot() {
+            const text = document.getElementById('textInput').value;
+            const title = document.getElementById('noteTitle').value;
+            const viewMode = document.getElementById('viewMode').value;
+            const showSearch = document.getElementById('showSearch').value === 'true';
+            const batteryLevel = parseInt(document.getElementById('batteryLevel').value);
+
+            const html = generator.generateScreenshot(text, {
+                title: title,
+                viewMode: viewMode,
+                showSearch: showSearch,
+                batteryLevel: batteryLevel
+            });
+
+            document.getElementById('screenshot').srcdoc = html;
+        }
+
+        // Load predefined examples
+        function loadExample(type) {
+            const examples = {
+                meeting: {
+                    title: 'Project Meeting Notes',
+                    text: `Project Meeting - October 27, 2025
+
+Attendees:
+- Development Team
+- Product Manager
+- UX Designer
+
+Key Decisions:
+• Launch new features next month
+• Improve user onboarding flow
+• Add dark mode support
+
+Action Items:
+- Update project documentation
+- Prepare stakeholder presentation
+- Schedule user testing sessions
+- Review performance metrics
+
+Next Meeting: November 3, 2025`,
+                    viewMode: 'detail'
+                },
+                shopping: {
+                    title: 'Shopping List',
+                    text: `Grocery Shopping
+
+Produce:
+- Bananas
+- Apples
+- Spinach
+- Cherry tomatoes
+- Avocados
+
+Dairy:
+- Milk
+- Greek yogurt
+- Cheddar cheese
+- Butter
+
+Proteins:
+- Chicken breast
+- Ground turkey
+- Salmon fillet
+- Eggs
+
+Pantry:
+- Olive oil
+- Whole grain bread
+- Pasta
+- Rice
+- Canned tomatoes
+
+Household:
+- Paper towels
+- Dish soap
+- Trash bags`,
+                    viewMode: 'detail'
+                },
+                ideas: {
+                    title: 'App Ideas',
+                    text: `Mobile App Concepts
+
+1. Mindful Moments - Meditation App
+• Daily guided meditations
+• Mood tracking
+• Breathing exercises
+• Progress analytics
+
+2. TaskFlow - Project Management
+• Kanban boards
+• Team collaboration
+• Time tracking
+• Automated workflows
+
+3. LocalEats - Food Discovery
+• Restaurant recommendations
+• Menu browsing
+• User reviews
+• Delivery integration
+
+4. FitTrack - Health Companion
+• Workout planning
+• Nutrition logging
+• Progress photos
+• Social challenges
+
+5. StudyBuddy - Learning Platform
+• Flashcard system
+• Study groups
+• Progress tracking
+• Achievement badges`,
+                    viewMode: 'list'
+                },
+                multiple: {
+                    title: 'All Notes',
+                    text: `Quick Reminder
+
+Call dentist tomorrow at 2 PM to confirm appointment
+
+
+Book Recommendations
+
+Fiction:
+- The Midnight Library
+- Project Hail Mary
+- Klara and the Sun
+
+Non-Fiction:
+- Atomic Habits
+- Thinking, Fast and Slow
+- The Power of Habit
+
+
+Travel Planning
+
+Europe Trip 2024:
+- Rome: 3 days (Colosseum, Vatican)
+- Paris: 4 days (Louvre, Eiffel Tower)
+- Barcelona: 3 days (Sagrada Familia, beaches)
+- Amsterdam: 2 days (canals, museums)
+
+
+Recipe Ideas
+
+Dinner This Week:
+Monday: Grilled salmon with roasted vegetables
+Tuesday: Homemade pizza with fresh toppings
+Wednesday: Chicken stir-fry with rice
+Thursday: Beef tacos with avocado
+Friday: Pasta carbonara with side salad
+
+
+Work Goals
+
+Q4 Objectives:
+- Complete product launch
+- Improve customer satisfaction by 15%
+- Reduce bug reports by 20%
+- Launch mobile app beta
+- Hire 2 senior developers`,
+                    viewMode: 'list'
+                }
+            };
+
+            const example = examples[type];
+            document.getElementById('textInput').value = example.text;
+            document.getElementById('noteTitle').value = example.title;
+            document.getElementById('viewMode').value = example.viewMode;
+
+            generateScreenshot();
+        }
+
+        // Generate initial screenshot
+        window.addEventListener('load', function() {
+            generateScreenshot();
+        });
+    </script>
+</body>
+</html>
