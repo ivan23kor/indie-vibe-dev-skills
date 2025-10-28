@@ -2,18 +2,19 @@
   "name": "indie-vibe-dev-skills",
   "version": "1.0.0",
   "description": "A curated collection of Claude Code skills for independent developers and creators",
-  "author": "ivan23kor",
+  "owner": "ivan23kor",
   "repository": "https://github.com/ivan23kor/indie-vibe-dev-skills",
   "homepage": "https://github.com/ivan23kor/indie-vibe-dev-skills",
   "license": "MIT",
-  "skills": [
+  "plugins": [
     {
       "id": "ios-notes-screenshot-generator",
       "name": "iOS Notes Screenshot Generator",
       "description": "Transforms arbitrary text input into realistic iOS notes app screenshots",
       "path": "skills/ios-notes-screenshot-generator",
       "entry": "SKILL.md",
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "type": "skill"
     }
   ],
   "keywords": [
